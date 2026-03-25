@@ -1,0 +1,29 @@
+{
+    "pose_name": "Ashwa_Sanchalanasana",
+    "angles": {
+        "front_knee": [
+            51,
+            60
+        ],
+        "back_knee": [
+            127,
+            133
+        ],
+        "left_hip": [
+            42,
+            179
+        ],
+        "right_hip": [
+            29,
+            152
+        ],
+        "left_elbow": [
+            162,
+            178
+        ],
+        "right_elbow": [
+            172,
+            174
+        ]
+    }
+}

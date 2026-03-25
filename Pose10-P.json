@@ -1,0 +1,29 @@
+{
+    "pose_name": "Padahastasana",
+    "angles": {
+        "left_elbow": [
+            107,
+            179
+        ],
+        "right_elbow": [
+            93,
+            173
+        ],
+        "left_knee": [
+            170,
+            180
+        ],
+        "right_knee": [
+            170,
+            180
+        ],
+        "left_hip": [
+            2,
+            10
+        ],
+        "right_hip": [
+            3,
+            16
+        ]
+    }
+}

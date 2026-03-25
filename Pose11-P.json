@@ -1,0 +1,29 @@
+{
+    "pose_name": "Hasta_Uttanasana",
+    "angles": {
+        "left_elbow": [
+            155,
+            180
+        ],
+        "right_elbow": [
+            155,
+            180
+        ],
+        "left_hip": [
+            155,
+            180
+        ],
+        "right_hip": [
+            155,
+            180
+        ],
+        "left_knee": [
+            165,
+            180
+        ],
+        "right_knee": [
+            165,
+            180
+        ]
+    }
+}

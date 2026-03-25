@@ -1,0 +1,29 @@
+{
+    "pose_name": "Bhujangasana",
+    "angles": {
+        "left_elbow": [
+            160,
+            180
+        ],
+        "right_elbow": [
+            160,
+            180
+        ],
+        "left_knee": [
+            170,
+            180
+        ],
+        "right_knee": [
+            170,
+            180
+        ],
+        "left_hip": [
+            160,
+            190
+        ],
+        "right_hip": [
+            160,
+            190
+        ]
+    }
+}

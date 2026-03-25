@@ -1,0 +1,29 @@
+{
+    "pose_name": "Asthanga Namaskar",
+    "angles": {
+        "left_elbow": [
+            60,
+            90
+        ],
+        "right_elbow": [
+            60,
+            90
+        ],
+        "left_knee": [
+            70,
+            100
+        ],
+        "right_knee": [
+            70,
+            100
+        ],
+        "left_hip": [
+            140,
+            170
+        ],
+        "right_hip": [
+            140,
+            170
+        ]
+    }
+}

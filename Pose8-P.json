@@ -1,0 +1,29 @@
+{
+    "pose_name": "Adho Mukha Svanasana",
+    "angles": {
+        "left_elbow": [
+            165,
+            180
+        ],
+        "right_elbow": [
+            165,
+            180
+        ],
+        "left_knee": [
+            160,
+            180
+        ],
+        "right_knee": [
+            160,
+            180
+        ],
+        "left_hip": [
+            80,
+            120
+        ],
+        "right_hip": [
+            80,
+            120
+        ]
+    }
+}

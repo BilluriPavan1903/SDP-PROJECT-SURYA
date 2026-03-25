@@ -1,0 +1,29 @@
+{
+    "pose_name": "Pose5-P",
+    "angles": {
+        "left_elbow": [
+            168,
+            178
+        ],
+        "right_elbow": [
+            170,
+            180
+        ],
+        "left_knee": [
+            172,
+            182
+        ],
+        "right_knee": [
+            168,
+            178
+        ],
+        "left_hip": [
+            170,
+            180
+        ],
+        "right_hip": [
+            168,
+            178
+        ]
+    }
+}
