@@ -132,7 +132,9 @@ p {
     <div class="card">
         <img src="{{ url_for('static', filename='Pose7-P.jpeg') }}">
 
-        <a href="/asana6">
+        
+
+         <a href="/asana6">
             <button class="prev-btn">Previous</button>
         </a>
 
@@ -149,9 +151,22 @@ p {
         allowfullscreen>
     </iframe>
 
-    <p>
-        Suryanamaskar is a powerful sequence of yoga poses that helps improve flexibility, strength, and overall well-being.
+     <p>
+        While inhaling, raise your head to achieve a backbend while your palms are resting on the mat. Your elbows should be gently bent while touching your body. Then, you have to roll your shoulders back while keeping your neck relaxed. Your legs and lower torso should be resting on the floor as you perform this pose of Sur Namaskar.</p>
+<p style="color: orange;">Benefits: </p>
+
+<p>Enhances the strength of the torso.</p>
+<p>Tones abdominal muscles</p>
+<p>Enhances blood circulation</p>
+<p>Helpful for the menstrual cycle</p>
+<p>Relieves back pain and sciatica</p>
+<p>Eases asthma</p>
+
+<p style="color: orange;">Pro yoga tip: </p>
+<p>If you suffer from ulcers, hyperthyroidism, backache or hernia, consult your doctor before performing this pose of Surya Namaskar.</p>
+
     </p>
+
 
     <button class="start-btn" onclick="startPractice()">Start Your Practice</button>
 
@@ -171,8 +186,18 @@ p {
     box-shadow:0 4px 10px rgba(0,0,0,0.2);
 ">
     <h2>Session Result</h2>
-    <p id="accuracyText">Accuracy: --</p>
+    <p id="scoreText">Pose Score: --</p>
+    <p id="stabilityText">Stability: --</p>
+    <p id="balanceText">Balance: --</p>
+    <p id="confidenceText">Confidence: --</p>
     <p id="holdText">Hold Time: --</p>
+    <p id="qualityText">Quality: --</p>
+
+    <h3>Feedback:</h3>
+    <ul id="feedbackList"></ul>
+
+    <h3>Deviation:</h3>
+    <ul id="deviationList"></ul>
 </div>
 
 
@@ -197,8 +222,15 @@ function startPractice() {
     const poseId = 7;   // 🔥 THIS IS THE ONLY IMPORTANT LINE
 
     // Reset result
-    document.getElementById("accuracyText").innerText = "Accuracy: --";
+    document.getElementById("scoreText").innerText = "Pose Score: --";
+    document.getElementById("stabilityText").innerText = "Stability: --";
+    document.getElementById("balanceText").innerText = "Balance: --";
+    document.getElementById("confidenceText").innerText = "Confidence: --";
     document.getElementById("holdText").innerText = "Hold Time: --";
+    document.getElementById("qualityText").innerText = "Quality: --";
+
+    document.getElementById("feedbackList").innerHTML = "";
+    document.getElementById("deviationList").innerHTML = "";
 
     // Show camera
     document.getElementById("cameraContainer").style.display = "block";
@@ -206,6 +238,13 @@ function startPractice() {
     // ✅ Pass pose ID to backend
     document.getElementById("cameraFeed").src =
         "http://127.0.0.1:5000/video?pose=" + poseId;
+
+    // 🔥 STOP OLD STREAM FIRST
+    document.getElementById("cameraFeed").src = "";
+
+    // 🔥 FORCE NEW REQUEST (ADD TIMESTAMP)
+    document.getElementById("cameraFeed").src =
+        "http://127.0.0.1:5000/video?pose=" + poseId + "&t=" + new Date().getTime();
 
     // Hide result
     document.getElementById("resultBox").style.display = "none";
@@ -235,11 +274,40 @@ function startPractice() {
                 // Show result
                 document.getElementById("resultBox").style.display = "block";
 
-                document.getElementById("accuracyText").innerText =
-                    "Accuracy: " + data.accuracy + "%";
-
+                document.getElementById("scoreText").innerText =
+                "Pose Score: " + data.pose_score + "%";
+                document.getElementById("stabilityText").innerText =
+                "Stability: " + data.stability + "%";
+                document.getElementById("balanceText").innerText =
+                "Balance: " + data.balance + "%";
+                document.getElementById("confidenceText").innerText =
+                "Confidence: " + (data.confidence * 100).toFixed(1) + "%";
                 document.getElementById("holdText").innerText =
-                    "Hold Time: " + data.hold_time + " sec";
+                "Hold Time: " + data.hold_time + " sec";
+                document.getElementById("qualityText").innerText =
+                "Quality: " + data.hold_quality;
+
+
+
+                // ✅ Feedback
+                let fbList = document.getElementById("feedbackList");
+                fbList.innerHTML = "";
+                data.feedback.forEach(f => {
+                    let li = document.createElement("li");
+                    li.innerText = f;
+                    fbList.appendChild(li);
+                });
+
+               // ✅ Deviation
+               let devList = document.getElementById("deviationList");
+               devList.innerHTML = "";
+               for (let joint in data.deviation) {
+                let li = document.createElement("li");
+                li.innerText = joint + " → " + data.deviation[joint] + "° off";
+                devList.appendChild(li);
+            }
+
+                
 
                 document.getElementById("resultBox").scrollIntoView({
                     behavior: "smooth"

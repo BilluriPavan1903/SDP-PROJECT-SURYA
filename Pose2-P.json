@@ -1,29 +1,52 @@
 {
-    "pose_name": "Hasta_Uttanasana",
-    "angles": {
-        "left_elbow": [
-            155,
-            180
-        ],
-        "right_elbow": [
-            155,
-            180
-        ],
-        "left_hip": [
-            155,
-            180
-        ],
-        "right_hip": [
-            155,
-            180
-        ],
-        "left_knee": [
-            165,
-            180
-        ],
-        "right_knee": [
-            165,
-            180
-        ]
+  "pose_name": "Hasta_Uttanasana",
+  "difficulty": "medium",
+  "target_hold_time": 20,
+
+  "joints": {
+    "left_elbow": {
+      "min": 155,
+      "max": 180,
+      "ideal": 170,
+      "weight": 0.15,
+      "feedback": "Straighten your left arm fully"
+    },
+    "right_elbow": {
+      "min": 155,
+      "max": 180,
+      "ideal": 170,
+      "weight": 0.15,
+      "feedback": "Straighten your right arm fully"
+    },
+
+    "left_hip": {
+      "min": 155,
+      "max": 180,
+      "ideal": 170,
+      "weight": 0.25,
+      "feedback": "Push your hips forward slightly"
+    },
+    "right_hip": {
+      "min": 155,
+      "max": 180,
+      "ideal": 170,
+      "weight": 0.25,
+      "feedback": "Push your hips forward slightly"
+    },
+
+    "left_knee": {
+      "min": 165,
+      "max": 180,
+      "ideal": 175,
+      "weight": 0.1,
+      "feedback": "Keep your left knee straight"
+    },
+    "right_knee": {
+      "min": 165,
+      "max": 180,
+      "ideal": 175,
+      "weight": 0.1,
+      "feedback": "Keep your right knee straight"
     }
+  }
 }

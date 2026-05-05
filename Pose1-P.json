@@ -1,29 +1,14 @@
 {
-    "pose_name": "Pranamasana",
-    "angles": {
-        "left_elbow": [
-            32,
-            62
-        ],
-        "right_elbow": [
-            32,
-            62
-        ],
-        "left_knee": [
-            170,
-            180
-        ],
-        "right_knee": [
-            170,
-            180
-        ],
-        "left_shoulder": [
-            25,
-            55
-        ],
-        "right_shoulder": [
-            26,
-            56
-        ]
-    }
+  "pose_name": "Pranamasana",
+  "difficulty": "easy",
+  "target_hold_time": 15,
+
+  "joints": {
+    "left_elbow": { "min": 32, "max": 62, "ideal": 47, "weight": 0.2, "feedback": "Adjust left elbow" },
+    "right_elbow": { "min": 32, "max": 62, "ideal": 47, "weight": 0.2, "feedback": "Adjust right elbow" },
+    "left_knee": { "min": 170, "max": 180, "ideal": 175, "weight": 0.2, "feedback": "Keep left knee straight" },
+    "right_knee": { "min": 170, "max": 180, "ideal": 175, "weight": 0.2, "feedback": "Keep right knee straight" },
+    "left_shoulder": { "min": 25, "max": 55, "ideal": 40, "weight": 0.1, "feedback": "Relax left shoulder" },
+    "right_shoulder": { "min": 26, "max": 56, "ideal": 41, "weight": 0.1, "feedback": "Relax right shoulder" }
+  }
 }

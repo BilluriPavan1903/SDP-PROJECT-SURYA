@@ -1,0 +1,30 @@
+ {
+    "pose_name": "Pranamasana",
+    "angles": {
+        "left_elbow": [
+            32,
+            62
+        ],
+        "right_elbow": [
+            32,
+            62
+        ],
+        "left_knee": [
+            170,
+            180
+        ],
+        "right_knee": [
+            170,
+            180
+        ],
+        "left_shoulder": [
+            25,
+            55
+        ],
+        "right_shoulder": [
+            26,
+            56
+        ]
+    }
+}
+    

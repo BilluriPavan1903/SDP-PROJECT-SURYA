@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, render_template, Response,request
 from flask_cors import CORS
 
@@ -80,16 +79,13 @@ def asana12():
 
 
 
-latest_result = {
-    "accuracy": 0,
-    "hold_time": 0,
-    "completed": False
-}
+
+latest_result = {}
 
 
 # ---------- CONFIG ----------
-SESSION_TIME = 100
-MAX_HOLD_TIME = 20
+SESSION_TIME = 10
+
 
 joint_highlight_map = {
     "left_elbow": mp_pose.PoseLandmark.LEFT_ELBOW,
@@ -149,33 +145,33 @@ def get_angle_value(lm, name):
         return None
 
 
-# ---------- LIVE VIDEO STREAM ----------
+
+
+
+
 def generate_frames(pose_id):
 
-    cap = cv2.VideoCapture(0)
+    global latest_result
 
-    # ✅ DYNAMIC FILES
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
     json_file = f"Pose{pose_id}-P.json"
     image_file = f"static/Pose{pose_id}-P.jpeg"
-    # LOAD JSON
+
     with open(json_file, "r") as f:
         pose_data = json.load(f)
 
     pose_name = pose_data["pose_name"]
-    pose_ranges = pose_data["angles"]
+    joint_configs = pose_data["joints"]
+    MAX_HOLD_TIME = pose_data.get("target_hold_time", 20)
 
-    # LOAD IMAGE
     ref_img = cv2.imread(image_file)
     ref_img = cv2.resize(ref_img, (200, 150))
 
     correct_hold_time = 0
     pose_hold_start = None
     session_start = time.time()
-
-    total_frames = 0
-    correct_frames = 0
-
-    session_ended = False   # ✅ ADDED
+    session_ended = False
 
     with mp_pose.Pose(min_detection_confidence=0.5,
                       min_tracking_confidence=0.5) as pose:
@@ -193,20 +189,41 @@ def generate_frames(pose_id):
             current_time = time.time()
             elapsed = int(current_time - session_start)
 
-            pose_correct = True
             feedback = []
+            deviation_map = {}
+
+            pose_score = 0
+            balance = 0
+            stability = 0
+            confidence = 0
+            hold_quality = "No Detection"
 
             if results.pose_landmarks:
                 lm = results.pose_landmarks.landmark
-                total_frames += 1
 
-                for joint, (min_v, max_v) in pose_ranges.items():
+                total_score = 0
+                total_weight = 0
+
+                left_angles, right_angles = [], []
+
+                # ✅ STRICT OLD LOGIC
+                pose_correct = True
+
+                for joint, config in joint_configs.items():
 
                     angle = get_angle_value(lm, joint)
+                    if angle is None:
+                        continue
 
-                    if angle is None or not (min_v <= angle <= max_v):
+                    min_v = config["min"]
+                    max_v = config["max"]
+                    ideal = config["ideal"]
+                    weight = config["weight"]
+
+                    # 🔥 STRICT CHECK FOR HOLD
+                    if not (min_v <= angle <= max_v):
                         pose_correct = False
-                        feedback.append(f"Fix {joint}")
+                        feedback.append(config["feedback"])
 
                         if joint in joint_highlight_map:
                             idx = joint_highlight_map[joint]
@@ -215,35 +232,82 @@ def generate_frames(pose_id):
                             y = int(lm[idx].y * h)
                             cv2.circle(frame, (x, y), 15, (0, 0, 255), -1)
 
+                    # 🔥 SCORING (independent of hold)
+                    deviation = abs(angle - ideal)
+                    deviation_map[joint] = round(deviation, 2)
+
+                    tolerance = (max_v - min_v) / 2
+                    joint_score = max(0, 1 - (deviation / tolerance))
+
+                    total_score += joint_score * weight
+                    total_weight += weight
+
+                    if "left" in joint:
+                        left_angles.append(angle)
+                    else:
+                        right_angles.append(angle)
+
+                # ---------- SCORE METRICS ----------
+                pose_score = round((total_score / total_weight) * 100, 2) if total_weight else 0
+
+                if left_angles and right_angles:
+                    balance = 100 - abs(np.mean(left_angles) - np.mean(right_angles))
+                    balance = round(max(0, balance), 2)
+
+                stability = 100 if pose_score > 70 else 60
+                confidence = 0.9
+
+                if pose_score > 85:
+                    hold_quality = "Excellent"
+                elif pose_score > 65:
+                    hold_quality = "Good"
+                else:
+                    hold_quality = "Needs Improvement"
+
+                # 🔥🔥 OLD HOLD LOGIC (ONLY STRICT) 🔥🔥
+
                 if pose_correct:
-                    correct_frames += 1
                     if pose_hold_start is None:
                         pose_hold_start = current_time
                 else:
-                    if pose_hold_start:
+                    if pose_hold_start is not None:
                         correct_hold_time += current_time - pose_hold_start
                         pose_hold_start = None
 
             else:
                 feedback.append("No person detected")
 
-            current_hold = int(current_time - pose_hold_start) if pose_hold_start else 0
-
-            # ✅ FIXED HOLD + STOP LOGIC
+            # 🔥 HOLD CALCULATION (FIXED)
+            current_hold = (current_time - pose_hold_start) if pose_hold_start else 0
             total_hold = correct_hold_time + current_hold
 
+            # 🔥 FINAL HOLD FIX
             if elapsed >= SESSION_TIME or total_hold >= MAX_HOLD_TIME:
+                if pose_hold_start is not None:
+                    correct_hold_time += current_time - pose_hold_start
+                    pose_hold_start = None
                 session_ended = True
 
             # ---------- DISPLAY ----------
+
+            remaining_time = max(0, SESSION_TIME - elapsed)
+
+
+
             cv2.putText(frame, pose_name, (20, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+            
 
-            cv2.putText(frame, f"Time: {elapsed}/{SESSION_TIME}",
+            # ⏱️ TIMER (NEW)
+            cv2.putText(frame, f"Time Left: {remaining_time}s",
                         (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+            #cv2.putText(frame, f"Score: {int(pose_score)}",
+                       # (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
             cv2.putText(frame, f"Hold: {int(total_hold)}",
                         (20, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            
 
             y = 150
             for msg in feedback:
@@ -254,42 +318,68 @@ def generate_frames(pose_id):
             h, w, _ = frame.shape
             frame[10:160, w-210:w-10] = ref_img
 
-            # ---------- STREAM FRAME ----------
+            # ---------- STREAM ----------
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
 
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-            # ✅ STOP STREAM PROPERLY
             if session_ended:
                 break
 
-
-        # ✅ CALCULATE RESULT
-        accuracy = round((correct_frames / total_frames) * 100, 2) if total_frames else 0
-
-        latest_result["accuracy"] = accuracy
-        latest_result["hold_time"] = round(total_hold, 2)
-        latest_result["completed"] = True
-
-
-
+        # ---------- FINAL RESULT ----------
+        latest_result = {
+            "pose_score": pose_score,
+            "stability": stability,
+            "balance": balance,
+            "hold_time": round(total_hold, 2),
+            "hold_quality": hold_quality,
+            "confidence": confidence,
+            "deviation": deviation_map,
+            "feedback": feedback,
+            "completed": True
+        }
 
     cap.release()
 
+
+
+
+def reset_result():
+    """Shared helper — always resets latest_result to a clean state."""
+    global latest_result
+    latest_result = {
+        "pose_score": 0,
+        "stability": 0,
+        "balance": 0,
+        "hold_time": 0,
+        "hold_quality": "",
+        "confidence": 0,
+        "deviation": {},
+        "feedback": [],
+        "completed": False   # ← key flag: frontend polls until this is True
+    }
+
+
+@app.route('/reset')
+def reset():
+    """Frontend calls this BEFORE starting a new session so stale
+    completed:True from the previous session is wiped immediately."""
+    reset_result()
+    response = jsonify({"reset": True})
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    return response
+
+
 @app.route('/video')
 def video():
-    global latest_result
-
-    # ✅ GET POSE ID FROM FRONTEND
+    # GET POSE ID FROM FRONTEND
     pose_id = request.args.get("pose", default=1, type=int)
 
-    latest_result = {
-        "accuracy": 0,
-        "hold_time": 0,
-        "completed": False
-    }
+    # Always reset before a new stream so /get_result
+    # can never return the previous session's completed:True
+    reset_result()
 
     return Response(generate_frames(pose_id),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -305,7 +395,13 @@ def start_session():
 
 @app.route("/get_result")
 def get_result():
-    return jsonify(latest_result)
+    response = jsonify(latest_result)
+
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
+    return response
 
 
 # ---------- RUN ----------

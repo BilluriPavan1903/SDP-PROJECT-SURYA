@@ -132,7 +132,9 @@ p {
     <div class="card">
         <img src="{{ url_for('static', filename='Pose8-P.jpeg') }}">
 
-        <a href="/asana7">
+        
+
+         <a href="/asana7">
             <button class="prev-btn">Previous</button>
         </a>
 
@@ -149,9 +151,22 @@ p {
         allowfullscreen>
     </iframe>
 
-    <p>
-        Suryanamaskar is a powerful sequence of yoga poses that helps improve flexibility, strength, and overall well-being.
+     <p>
+        As you exhale, lift your hips upwards towards the ceiling. Your heels should be pushed down on the floor or mat. Then, drop your head down as you look towards your navel. Your weight should be evenly balanced onto your limbs while keeping your shoulders and neck relaxed. With each inhale and exhale, stretch more deeply while looking towards your navel.</p>
+
+<p style="color: orange;">Benefits: </p>
+
+<p>Calms frayed nerves and tackles stress</p>
+<p>Enhances blood circulation</p>
+<p>Relieves backache, menopause symptoms and headaches</p>
+
+<p style="color: orange;">Pro yoga tip: </p>
+<p>People suffering from diarrhoea, eye and ear infection and wrist injuries should avoid doing this pose.</p>
+
+<p>Completing the eighth step of the sun salutation exercise, you will need to repeat the Ashva Sanchalanasana, Uttanasana, Uttana hastasana, and Pranamasana.</p>
+
     </p>
+
 
     <button class="start-btn" onclick="startPractice()">Start Your Practice</button>
 
@@ -171,8 +186,18 @@ p {
     box-shadow:0 4px 10px rgba(0,0,0,0.2);
 ">
     <h2>Session Result</h2>
-    <p id="accuracyText">Accuracy: --</p>
+    <p id="scoreText">Pose Score: --</p>
+    <p id="stabilityText">Stability: --</p>
+    <p id="balanceText">Balance: --</p>
+    <p id="confidenceText">Confidence: --</p>
     <p id="holdText">Hold Time: --</p>
+    <p id="qualityText">Quality: --</p>
+
+    <h3>Feedback:</h3>
+    <ul id="feedbackList"></ul>
+
+    <h3>Deviation:</h3>
+    <ul id="deviationList"></ul>
 </div>
 
 
@@ -197,8 +222,15 @@ function startPractice() {
     const poseId = 8;   // 🔥 THIS IS THE ONLY IMPORTANT LINE
 
     // Reset result
-    document.getElementById("accuracyText").innerText = "Accuracy: --";
+    document.getElementById("scoreText").innerText = "Pose Score: --";
+    document.getElementById("stabilityText").innerText = "Stability: --";
+    document.getElementById("balanceText").innerText = "Balance: --";
+    document.getElementById("confidenceText").innerText = "Confidence: --";
     document.getElementById("holdText").innerText = "Hold Time: --";
+    document.getElementById("qualityText").innerText = "Quality: --";
+
+    document.getElementById("feedbackList").innerHTML = "";
+    document.getElementById("deviationList").innerHTML = "";
 
     // Show camera
     document.getElementById("cameraContainer").style.display = "block";
@@ -206,6 +238,13 @@ function startPractice() {
     // ✅ Pass pose ID to backend
     document.getElementById("cameraFeed").src =
         "http://127.0.0.1:5000/video?pose=" + poseId;
+
+    // 🔥 STOP OLD STREAM FIRST
+    document.getElementById("cameraFeed").src = "";
+
+    // 🔥 FORCE NEW REQUEST (ADD TIMESTAMP)
+    document.getElementById("cameraFeed").src =
+        "http://127.0.0.1:5000/video?pose=" + poseId + "&t=" + new Date().getTime();
 
     // Hide result
     document.getElementById("resultBox").style.display = "none";
@@ -235,11 +274,40 @@ function startPractice() {
                 // Show result
                 document.getElementById("resultBox").style.display = "block";
 
-                document.getElementById("accuracyText").innerText =
-                    "Accuracy: " + data.accuracy + "%";
-
+                document.getElementById("scoreText").innerText =
+                "Pose Score: " + data.pose_score + "%";
+                document.getElementById("stabilityText").innerText =
+                "Stability: " + data.stability + "%";
+                document.getElementById("balanceText").innerText =
+                "Balance: " + data.balance + "%";
+                document.getElementById("confidenceText").innerText =
+                "Confidence: " + (data.confidence * 100).toFixed(1) + "%";
                 document.getElementById("holdText").innerText =
-                    "Hold Time: " + data.hold_time + " sec";
+                "Hold Time: " + data.hold_time + " sec";
+                document.getElementById("qualityText").innerText =
+                "Quality: " + data.hold_quality;
+
+
+
+                // ✅ Feedback
+                let fbList = document.getElementById("feedbackList");
+                fbList.innerHTML = "";
+                data.feedback.forEach(f => {
+                    let li = document.createElement("li");
+                    li.innerText = f;
+                    fbList.appendChild(li);
+                });
+
+               // ✅ Deviation
+               let devList = document.getElementById("deviationList");
+               devList.innerHTML = "";
+               for (let joint in data.deviation) {
+                let li = document.createElement("li");
+                li.innerText = joint + " → " + data.deviation[joint] + "° off";
+                devList.appendChild(li);
+            }
+
+                
 
                 document.getElementById("resultBox").scrollIntoView({
                     behavior: "smooth"

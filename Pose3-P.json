@@ -1,29 +1,52 @@
 {
-    "pose_name": "Padahastasana",
-    "angles": {
-        "left_elbow": [
-            107,
-            179
-        ],
-        "right_elbow": [
-            93,
-            173
-        ],
-        "left_knee": [
-            170,
-            180
-        ],
-        "right_knee": [
-            170,
-            180
-        ],
-        "left_hip": [
-            2,
-            10
-        ],
-        "right_hip": [
-            3,
-            16
-        ]
+  "pose_name": "Padahastasana",
+  "difficulty": "medium",
+  "target_hold_time": 20,
+
+  "joints": {
+    "left_elbow": {
+      "min": 107,
+      "max": 179,
+      "ideal": 145,
+      "weight": 0.1,
+      "feedback": "Relax your left arm while reaching down"
+    },
+    "right_elbow": {
+      "min": 93,
+      "max": 173,
+      "ideal": 135,
+      "weight": 0.1,
+      "feedback": "Relax your right arm while reaching down"
+    },
+
+    "left_knee": {
+      "min": 170,
+      "max": 180,
+      "ideal": 175,
+      "weight": 0.2,
+      "feedback": "Keep your left knee straight"
+    },
+    "right_knee": {
+      "min": 170,
+      "max": 180,
+      "ideal": 175,
+      "weight": 0.2,
+      "feedback": "Keep your right knee straight"
+    },
+
+    "left_hip": {
+      "min": 2,
+      "max": 10,
+      "ideal": 6,
+      "weight": 0.2,
+      "feedback": "Bend more from your hips, not your back"
+    },
+    "right_hip": {
+      "min": 3,
+      "max": 16,
+      "ideal": 9,
+      "weight": 0.2,
+      "feedback": "Bend more from your hips, not your back"
     }
+  }
 }
